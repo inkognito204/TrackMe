@@ -36,13 +36,8 @@ function writeTrack($data) {
         ('".$data['user']."', '".$data['track']."', '{$data['time']}', '".$data['lat']."', '".$data['lon']."', '{$data['alt']}', '{$data['speed']}', '{$data['bearing']}', '{$data['acc']}', NOW())";
     
     if ($db->query($sql)) {
-        echo 'Erfolgreich:</br>';
-        echo $time.'</br>';
-        print_r($sql);
         return true;
     } else {
-        echo 'Fehler:</br>';
-        print_r($sql);
         return false;
     }
 }
