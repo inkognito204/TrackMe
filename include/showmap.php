@@ -39,7 +39,7 @@
           var point = new google.maps.LatLng(
               parseFloat(markers[i].getAttribute("lat")),
               parseFloat(markers[i].getAttribute("lon")));
-          var html = "" + name + " " + address;
+          var html = "" + name + "<br>" + address;
           var icon = customIcons[type] || {};
           var marker = new google.maps.Marker({
             map: map,
