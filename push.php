@@ -1,14 +1,21 @@
 <?php
 
-include 'config.php';
+require 'config.php';
 
-@$db = new mysqli($host, $benutzer, $passwort, $datenbank);
+$strDbLocation = 'mysql:dbname='.$datenbank.';host='.$host.'';
+$strDbUser = $benutzer;
+$strDbPassword = $passwort;
 
-if (mysqli_connect_errno()) {
-        printf("Verbindung fehlgeschlagen: %s\n", mysqli_connect_error());
-        exit();
-    }
-    
+try
+{
+  $db = new PDO($strDbLocation, $strDbUser, $strDbPassword);
+}
+catch (PDOException $e)
+{
+  echo 'Datenbank-Fehler: ' . $e->getMessage();
+  die();
+}
+
 if (isset($_GET['user'])) {
     $data['user'] = $_GET['user'];
     $data['track'] = $_GET['track'];
@@ -28,18 +35,36 @@ function writeTrack($data) {
     global $db;
     
     $time = date('d.m.Y H:m:s', $data['time']);
-    
-    
-    $sql = "
-        INSERT INTO `track_data` (`user`, `track`, `time`, `lat`, `lon`, `alt`, `speed`, `bearing`, `acc`, `insert`)
+        
+    $insertsql = $db->prepare(
+        "INSERT INTO `track_data` (`user`, `track`, `time`, `lat`, `lon`, `alt`, `speed`, `bearing`, `acc`, `insert`)
         VALUES
-        ('".$data['user']."', '".$data['track']."', '{$data['time']}', '".$data['lat']."', '".$data['lon']."', '{$data['alt']}', '{$data['speed']}', '{$data['bearing']}', '{$data['acc']}', NOW())";
+        (:user, :track, :time, :lat, :lon, :alt, :speed, :bearing, :acc, NOW())"
+        );
     
-    if ($db->query($sql)) {
+    $insertsql->bindParam('user', $data['user']);
+    $insertsql->bindParam('track', $data['track']);
+    $insertsql->bindParam('time', $data['time']);
+    $insertsql->bindParam('lat', $data['lat']);
+    $insertsql->bindParam('lon', $data['lon']);
+    $insertsql->bindParam('alt', $data['alt']);
+    $insertsql->bindParam('speed', $data['speed']);
+    $insertsql->bindParam('bearing', $data['bearing']);
+    $insertsql->bindParam('acc', $data['acc']);
+    
+    try
+    {
+        $insertsql->execute();
+        $db = null;
         return true;
-    } else {
+    }
+    catch (PDOException $e)
+    {
+        echo 'Datenbank-Fehler: ' . $e->getMessage();
+        $db = null;
         return false;
     }
+
 }
 
 ?>
