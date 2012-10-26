@@ -1,20 +1,6 @@
 <?php
 
-require 'config.php';
-
-$strDbLocation = 'mysql:dbname='.$datenbank.';host='.$host.'';
-$strDbUser = $benutzer;
-$strDbPassword = $passwort;
-
-try
-{
-  $db = new PDO($strDbLocation, $strDbUser, $strDbPassword);
-}
-catch (PDOException $e)
-{
-  echo 'Datenbank-Fehler: ' . $e->getMessage();
-  die();
-}
+include ("/include/db.php");
 
 if (isset($_GET['user'])) {
     $data['user'] = $_GET['user'];
