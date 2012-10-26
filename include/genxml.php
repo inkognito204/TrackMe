@@ -1,26 +1,26 @@
 <?php
-require '../config.php';
-
 $dom = new DOMDocument("1.0");
 $node = $dom->createElement("markers");
 $parnode = $dom->appendChild($node);
 
-@$db = new mysqli($host, $benutzer, $passwort, $datenbank);
-
-if (mysqli_connect_errno()) {
-        printf("Verbindung fehlgeschlagen: %s\n", mysqli_connect_error());
-        exit();
-    }
+include ("db.php");
 
 $sql = "SELECT * FROM track_data WHERE 1";
-$result = $db->query($sql);
-if (!$result) {
-    die('Falsches Query: '.mysqli_error());
-}
+
+try
+    {
+        $result = $db->query($sql);
+        $result->setFetchMode(PDO::FETCH_ASSOC);
+    }
+    catch (PDOException $e)
+    {
+        echo 'Datenbank-Fehler: ' . $e->getMessage();
+        die();
+    }
 
 header("Content-type: text/xml"); 
 
-while ($row = @mysqli_fetch_assoc($result)){  
+while ($row = $result->fetch()){ 
   $node = $dom->createElement("marker");  
   $newnode = $parnode->appendChild($node);   
   $newnode->setAttribute("track",$row['track']);
@@ -28,9 +28,9 @@ while ($row = @mysqli_fetch_assoc($result)){
   $newnode->setAttribute("lat", $row['lat']);  
   $newnode->setAttribute("lon", $row['lon']);
   $newnode->setAttribute("type", "cache");
-  
 } 
 
+$db = null;
 echo $dom->saveXML();
 
 ?>
